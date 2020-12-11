@@ -83,6 +83,48 @@ class DatasetBase(ABCMeta):
             return dilate_abs_line(image)
 
 
+class AutoEncoderDataset(Dataset, DatasetBase):
+    def __init__(self, image_paths: list, training: bool):
+        """
+        :param image_paths:color_image_path list
+        :param training:   boolean flag for DataArgumentation
+        :param size:       resize size
+        """
+        self._image_paths = image_paths
+        self._random_crop = RandomCrop(512)
+        self._image_compose = Compose([
+            Resize(128),
+            ToTensor(),
+            Normalize((0.5, 0.5, 0.5),
+                      (0.5, 0.5, 0.5))
+        ])
+        self._line_compose = Compose([
+            Resize(128),
+            ToTensor(),
+            Normalize([0.5], [0.5])
+        ])
+
+    def __getitem__(self, item) -> Tuple(Image, Image):
+        target = Image.open(self._image_paths[item]).convert("RGB")
+        line = self._create_line(target)
+        target, line = self._random_crop(target, line)
+        target, line = self._argumentation(target, line)
+        target = self._image_compose(target)
+        line = self._line_compose(line)
+        return target, line
+
+    def __len__(self):
+        return len(self._image_paths)
+
+    def _argumentation(self,
+                       target: Image,
+                       line: Image) -> Tuple(Image, Image):
+        """ Data Argumentataion """
+        target, line = self._random_flip(target, line)
+        target = self._color_jitter(target)
+        return target, line
+
+
 class DraftModelDataset(Dataset, DatasetBase):
     def __init__(self,
                  image_paths: list,
