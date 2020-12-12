@@ -1,22 +1,17 @@
-import os
 import random
-from glob import glob
 from typing import Tuple
 import cv2
 import numpy as np
-from numpy.lib.type_check import imag
 import torch
 from PIL import Image, ImageOps
-from torch.utils.data import Dataset, DataLoader
-from torchvision.transforms import Lambda, Normalize, Resize, ToTensor, Compose, ColorJitter, \
-    RandomChoice
+from torch.utils.data import Dataset
+from torchvision.transforms import Lambda, Normalize, Resize, ToTensor, Compose, ColorJitter
 from torchvision.transforms.functional import to_tensor
-from transforms import RandomCrop
 from abc import ABCMeta
-from data import xdog, dilate_abs_line
+from data import xdog, dilate_abs_line, RandomCrop, random_flip
 
 
-class DatasetBase(ABCMeta):
+class DatasetBase:
     """ Image Data Loader Base Class """
 
     @staticmethod
@@ -27,7 +22,7 @@ class DatasetBase(ABCMeta):
             line (Tensor): line-arts image Tensor
 
         Returns:
-            Tensor: line-arts data 
+            Tensor: line-arts data
         """
         ran = random.uniform(0.7, 1)
         line = line * ran + (1 - ran)
@@ -39,11 +34,11 @@ class DatasetBase(ABCMeta):
         """ Create Random Hint Mask (0 or 1 binary 2D Mask)
 
         Args:
-            zero_p (float): 
+            zero_p (float):
             Probability flag for zero hint count  Defaults to 0.4.
 
         Returns:
-            Tensor: Binary 2D Hint Mask 
+            Tensor: Binary 2D Hint Mask
         """
         hint_count = 0
 
@@ -78,51 +73,9 @@ class DatasetBase(ABCMeta):
             Image: Greyscale PIL Image (Line-Arts)
         """
         if random.random() > 0.5:
-            return xdog(image)
+            return xdog(image).convert('L')
         else:
-            return dilate_abs_line(image)
-
-
-class AutoEncoderDataset(Dataset, DatasetBase):
-    def __init__(self, image_paths: list, training: bool):
-        """
-        :param image_paths:color_image_path list
-        :param training:   boolean flag for DataArgumentation
-        :param size:       resize size
-        """
-        self._image_paths = image_paths
-        self._random_crop = RandomCrop(512)
-        self._image_compose = Compose([
-            Resize(128),
-            ToTensor(),
-            Normalize((0.5, 0.5, 0.5),
-                      (0.5, 0.5, 0.5))
-        ])
-        self._line_compose = Compose([
-            Resize(128),
-            ToTensor(),
-            Normalize([0.5], [0.5])
-        ])
-
-    def __getitem__(self, item) -> Tuple(Image, Image):
-        target = Image.open(self._image_paths[item]).convert("RGB")
-        line = self._create_line(target)
-        target, line = self._random_crop(target, line)
-        target, line = self._argumentation(target, line)
-        target = self._image_compose(target)
-        line = self._line_compose(line)
-        return target, line
-
-    def __len__(self):
-        return len(self._image_paths)
-
-    def _argumentation(self,
-                       target: Image,
-                       line: Image) -> Tuple(Image, Image):
-        """ Data Argumentataion """
-        target, line = self._random_flip(target, line)
-        target = self._color_jitter(target)
-        return target, line
+            return dilate_abs_line(image).convert('L')
 
 
 class DraftModelDataset(Dataset, DatasetBase):
@@ -147,7 +100,8 @@ class DraftModelDataset(Dataset, DatasetBase):
         ]
 
         if training:
-            compose_processing.append(Lambda(self._jitter()))
+            compose_processing.append(Lambda(self._jitter))
+
         compose_processing.append(Normalize([0.5], [0.5]))
 
         self._line_compose = Compose(compose_processing)
@@ -160,12 +114,12 @@ class DraftModelDataset(Dataset, DatasetBase):
     def __len__(self):
         return len(self._image_paths)
 
-    def __getitem__(self, item) -> Tuple(torch.Tensor,
-                                         torch.Tensor,
-                                         torch.Tensor):
+    def __getitem__(self, item) -> (torch.Tensor,
+                                    torch.Tensor,
+                                    torch.Tensor):
 
         target_image = Image.open(self._image_paths[item]).convert('RGB')
-        if random.random() > 0.001:
+        if random.random() > 0.0001:
             line_image = self._create_line(target_image)
         else:
             # Data argumentation color image to greyscale image
@@ -194,12 +148,11 @@ class DraftModelDataset(Dataset, DatasetBase):
 
     def _argumentation(self,
                        target: Image,
-                       line: Image) -> Tuple(Image, Image):
+                       line: Image) -> (Image, Image):
         """ Data Argumentataion """
-
         line = ImageOps.equalize(line) if random.random() >= 0.5 else line
 
-        target, line = self._random_flip(target, line)
+        target, line = random_flip(target, line)
         target = self._color_jitter(target)
         return target, line
 
@@ -233,10 +186,8 @@ class ColorizationModelDataset(Dataset, DatasetBase):
             Normalize([0.5], [0.5]),
         ])
 
-    def __getitem__(self, item) -> Tuple(torch.Tensor,
-                                         torch.Tensor,
-                                         torch.Tensor,
-                                         torch.Tensor):
+    def __getitem__(self, item) -> (torch.Tensor, torch.Tensor,
+                                    torch.Tensor, torch.Tensor):
 
         target_image = Image.open(self._image_paths[item]).convert('RGB')
         line_image = self._create_line(target_image)
@@ -258,10 +209,10 @@ class ColorizationModelDataset(Dataset, DatasetBase):
 
         return target_image, hint_image, line_image, line_draft
 
-    @staticmethod
+    @ staticmethod
     def _create_mask() -> torch.Tensor:
         area = 128 * 128
-        hint_count = area // 100
+        hint_count = 128
 
         zero = np.zeros(shape=[area - hint_count], dtype=np.uint8)
         one = np.ones(shape=[hint_count], dtype=np.uint8)
@@ -271,3 +222,45 @@ class ColorizationModelDataset(Dataset, DatasetBase):
         _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
 
         return to_tensor(mask)
+
+
+class AutoEncoderDataset(Dataset, DatasetBase):
+    def __init__(self, image_paths: list, training: bool):
+        """
+        :param image_paths:color_image_path list
+        :param training:   boolean flag for DataArgumentation
+        :param size:       resize size
+        """
+        self._image_paths = image_paths
+        self._random_crop = RandomCrop(512)
+        self._image_compose = Compose([
+            Resize(128),
+            ToTensor(),
+            Normalize((0.5, 0.5, 0.5),
+                      (0.5, 0.5, 0.5))
+        ])
+        self._line_compose = Compose([
+            Resize(128),
+            ToTensor(),
+            Normalize([0.5], [0.5])
+        ])
+
+    def __getitem__(self, item) -> (Image, Image):
+        target = Image.open(self._image_paths[item]).convert("RGB")
+        line = self._create_line(target)
+        target, line = self._random_crop(target, line)
+        target, line = self._argumentation(target, line)
+        target = self._image_compose(target)
+        line = self._line_compose(line)
+        return target, line
+
+    def __len__(self):
+        return len(self._image_paths)
+
+    def _argumentation(self,
+                       target: Image,
+                       line: Image) -> (Image, Image):
+        """ Data Argumentataion """
+        target, line = random_flip(target, line)
+        target = self._color_jitter(target)
+        return target, line
