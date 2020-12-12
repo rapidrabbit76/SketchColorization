@@ -8,7 +8,16 @@ __DATASET_CANDIDATE__ = ['draft', 'colorization', 'autoencoder']
 
 
 def create_data_loader(hyperparameters: dict,
-                       dataset: str):
+                       dataset: str) -> (DataLoader, DataLoader):
+    """ Create Data Loader "dataset" must be one of candidate Candidate is 'draft','colorization','autoencoder'
+
+    Args:
+        hyperparameters (dict): hyperparameter dict(yml)
+        dataset (str): one of dataset candidate
+
+    Returns:
+        [Tuple] : Dataloaders
+    """
 
     assert dataset in __DATASET_CANDIDATE__, \
         "Dataset {} is not in {}".format(
@@ -26,12 +35,14 @@ def create_data_loader(hyperparameters: dict,
     train_image_paths = image_paths[:-pivot]
     test_image_paths = image_paths[-pivot:]
 
+    # Create Dataset
     train_ds = DraftModelDataset(train_image_paths,
                                  training=True)
 
     test_ds = DraftModelDataset(test_image_paths,
                                 training=False)
 
+    # Create DataLoader
     train_dl = DataLoader(train_ds,
                           batch_size=batch_size,
                           shuffle=True,

@@ -64,7 +64,7 @@ class DatasetBase:
 
     @staticmethod
     def _create_line(image: Image) -> Image:
-        """[summary]
+        """ Create Line-arts Image
 
         Args:
             image (Image): Color PIL Image (target Image)
