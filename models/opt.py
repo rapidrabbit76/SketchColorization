@@ -59,7 +59,7 @@ class UpBlock(nn.Module):
 
 
 class ResNeXtBottleneck(nn.Module):
-    """ ResNext : 
+    """ ResNext :
         (Aggregated Residual Transformations for Deep Neural Networks) """
 
     def __init__(self,
@@ -101,6 +101,17 @@ class ResNeXtBottleneck(nn.Module):
         bottleneck = self.conv_expand.forward(bottleneck)
         x = self.shortcut.forward(x)
         return x + bottleneck
+
+
+class Flatten(nn.Module):
+    """ Flatten Layer """
+
+    def forward(self, tensor: torch.Tensor):
+        """
+        :param tensor: 4D Tensor
+        :return: 4D Tensor
+        """
+        return tensor.view(tensor.size(0), -1)
 
 
 def kaiming_normal(module):
