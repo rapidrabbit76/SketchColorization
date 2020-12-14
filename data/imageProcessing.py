@@ -248,7 +248,7 @@ def dilate_abs_line(image: Image) -> Image:
     dilated = cv2.dilate(image, kernel=kernel)
     diff = cv2.absdiff(dilated, image)
     line = 255 - diff
-    return Image.fromarray(line)
+    return Image.fromarray(line).convert("L")
 
 
 def xdog(img: Image, k_sigma: float = 4.5,
@@ -280,7 +280,7 @@ def xdog(img: Image, k_sigma: float = 4.5,
 
     line = _xdog(img, sigma=sigma, k_sigma=k_sigma,
                  p=p, epsilon=epsilon, phi=phi)
-    return Image.fromarray(line)
+    return Image.fromarray(line).convert("L")
 
 
 def random_flip(color: Image,

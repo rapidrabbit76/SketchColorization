@@ -73,9 +73,9 @@ class DatasetBase:
             Image: Greyscale PIL Image (Line-Arts)
         """
         if random.random() > 0.5:
-            return xdog(image).convert('L')
+            return xdog(image)
         else:
-            return dilate_abs_line(image).convert('L')
+            return dilate_abs_line(image)
 
 
 class DraftModelDataset(Dataset, DatasetBase):
@@ -118,9 +118,13 @@ class DraftModelDataset(Dataset, DatasetBase):
                                     torch.Tensor,
                                     torch.Tensor):
 
-        target_image = Image.open(self._image_paths[item]).convert('RGB')
+        paths = self._image_paths[item]
+        target_image = Image.open(paths[0]).convert('RGB')
         if random.random() > 0.0001:
-            line_image = self._create_line(target_image)
+            if random.random() > 0.5:
+                line_image = dilate_abs_line(target_image)
+            else:
+                line_image = Image.open(paths[1]).convert('L')
         else:
             # Data argumentation color image to greyscale image
             line_image = target_image.convert('L')
@@ -188,9 +192,13 @@ class ColorizationModelDataset(Dataset, DatasetBase):
 
     def __getitem__(self, item) -> (torch.Tensor, torch.Tensor,
                                     torch.Tensor, torch.Tensor):
+        paths = self._image_paths[item]
+        target_image = Image.open(paths[0]).convert('RGB')
 
-        target_image = Image.open(self._image_paths[item]).convert('RGB')
-        line_image = self._create_line(target_image)
+        if random.random() > 0.5:
+            line_image = dilate_abs_line(target_image)
+        else:
+            line_image = Image.open(paths[1]).convert('L')
 
         target_image, line_image = self._random_crop(target_image,
                                                      line_image)
@@ -251,8 +259,15 @@ class AutoEncoderDataset(Dataset, DatasetBase):
                                          hue=0.03)
 
     def __getitem__(self, item) -> (Image, Image):
-        target = Image.open(self._image_paths[item]).convert("RGB")
-        line = self._create_line(target)
+        paths = self._image_paths[item]
+        target = Image.open(
+            paths[0]).convert('RGB')
+
+        if random.random() > 0.5:
+            line = dilate_abs_line(target)
+        else:
+            line = Image.open(paths[1]).convert('L')
+
         target, line = self._random_crop(target, line)
         target, line = self._argumentation(target, line)
         target = self._image_compose(target)

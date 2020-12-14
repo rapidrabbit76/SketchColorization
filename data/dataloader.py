@@ -24,15 +24,25 @@ def create_data_loader(hyperparameters: dict,
         "Dataset {} is not in {}".format(
             dataset, str(__DATASET_CANDIDATE__))
 
-    image_path = hyperparameters['image_path']
+    color_path = hyperparameters['image_path']
+    line_path = hyperparameters['line_path']
     batch_size = hyperparameters[dataset]['batch_size']
 
-    image_paths = sorted(glob(os.path.join(image_path, '*')))
-    assert len(image_paths) != 0,\
-        "Image path {} is Empty".format(image_path)
+    color_paths = sorted(glob(os.path.join(color_path, '*')))
+    line_paths = sorted(glob(os.path.join(line_path, '*')))
 
-    image_paths = sorted(glob(os.path.join(image_path, '*')))
-    pivot = int(len(image_paths) * 0.1)
+    pivot = int(len(color_paths) * 0.1)
+    assert len(color_paths) != 0,\
+        "Image path {} is Empty".format(color_path)
+
+    assert len(color_paths) == len(line_paths),\
+        "image, line count is not same"
+
+    image_paths = []
+
+    for data in zip(color_paths, line_paths):
+        image_paths.append(data)
+
     train_image_paths = image_paths[:-pivot]
     test_image_paths = image_paths[-pivot:]
 
