@@ -1,18 +1,21 @@
 {
-  image_path: image_path, 
+  image_path: , 
+  line_path: , 
   pin_memory: False,
   device: cuda:0,
   seed: 2331,
   logdir: ./tensorboard,
 
 
-  draft_stage: {
+  draft: {
+    ckpt: ,
+
     gf_dim: 64,
     df_dim: 64,
     ch_dim: 3,
 
     epoch: 18,
-    batch_size: 8,
+    batch_size: 64,
     
     lr: 0.0001,
     beta1: 0.5,
@@ -31,8 +34,10 @@
     validation_interval: 1000,
   },
 
-  colorization_stage: {
+  colorization: {
+    ckpt: ,
     draft_model_path: path,
+
     gf_dim: 64,
     ch_dim: 3,
 
@@ -51,11 +56,13 @@
   },
 
   autoencoder: {
+    ckpt: ,
+
     gf_dim: 64,
     ch_dim: 3,
 
     epoch: 18,
-    batch_size: 8,
+    batch_size: 64,
     
     lr: 0.0001,
     beta1: 0.5,
