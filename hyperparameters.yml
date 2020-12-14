@@ -3,6 +3,7 @@
   pin_memory: False,
   device: cuda:0,
   seed: 2331,
+  logdir: ./tensorboard,
 
 
   draft_stage: {
