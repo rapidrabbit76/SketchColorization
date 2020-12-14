@@ -2,14 +2,15 @@ import data
 import os
 from glob import glob
 from torch.utils.data import DataLoader
-from .dataset import AutoEncoderDataset, DraftModelDataset, ColorizationModelDataset
+from data.dataset import AutoEncoderDataset, DraftModelDataset, ColorizationModelDataset
 
 __DATASET_CANDIDATE__ = ['draft', 'colorization', 'autoencoder']
 
 
 def create_data_loader(hyperparameters: dict,
                        dataset: str) -> (DataLoader, DataLoader):
-    """ Create Data Loader "dataset" must be one of candidate Candidate is 'draft','colorization','autoencoder'
+    """ Create Data Loader "dataset" must be one of candidate 
+    Candidate is 'draft','colorization','autoencoder'
 
     Args:
         hyperparameters (dict): hyperparameter dict(yml)
