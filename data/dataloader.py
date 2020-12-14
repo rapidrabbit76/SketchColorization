@@ -25,7 +25,7 @@ def create_data_loader(hyperparameters: dict,
             dataset, str(__DATASET_CANDIDATE__))
 
     image_path = hyperparameters['image_path']
-    batch_size = hyperparameters['draft_stage']['batch_size']
+    batch_size = hyperparameters[dataset]['batch_size']
 
     image_paths = sorted(glob(os.path.join(image_path, '*')))
     assert len(image_paths) != 0,\
@@ -36,12 +36,18 @@ def create_data_loader(hyperparameters: dict,
     train_image_paths = image_paths[:-pivot]
     test_image_paths = image_paths[-pivot:]
 
-    # Create Dataset
-    train_ds = DraftModelDataset(train_image_paths,
-                                 training=True)
+    Dataset = None
 
-    test_ds = DraftModelDataset(test_image_paths,
-                                training=False)
+    if dataset == 'draft':
+        Dataset = DraftModelDataset
+    elif dataset == 'colorization':
+        Dataset = ColorizationModelDataset
+    else:
+        Dataset = AutoEncoderDataset
+
+    # Create Dataset
+    train_ds = Dataset(train_image_paths, training=True)
+    test_ds = Dataset(test_image_paths, training=False)
 
     # Create DataLoader
     train_dl = DataLoader(train_ds,

@@ -15,6 +15,8 @@ class TrainerBase(metaclass=ABCMeta):
                  hp: dict,
                  model_name: str):
 
+        self.epoch = 0
+        self.itr = 0
         self.hp = hp
         seed = hp['seed']
 

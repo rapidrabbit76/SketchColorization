@@ -245,6 +245,11 @@ class AutoEncoderDataset(Dataset, DatasetBase):
             Normalize([0.5], [0.5])
         ])
 
+        self._color_jitter = ColorJitter(brightness=0,
+                                         contrast=0.1,
+                                         saturation=0.1,
+                                         hue=0.03)
+
     def __getitem__(self, item) -> (Image, Image):
         target = Image.open(self._image_paths[item]).convert("RGB")
         line = self._create_line(target)
