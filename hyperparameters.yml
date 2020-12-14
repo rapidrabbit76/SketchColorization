@@ -1,6 +1,7 @@
 {
   image_path: image_path, 
   pin_memory: False,
+  device: cuda:0,
 
   draft_stage: {
     gf_dim: 64,
@@ -46,7 +47,7 @@
     validation_interval: 1000,
   },
 
-  draft_stage: {
+  autoencoder: {
     gf_dim: 64,
     ch_dim: 3,
 

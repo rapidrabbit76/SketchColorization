@@ -4,10 +4,10 @@ from models import ResNeXtBottleneck, DownBlock, Flatten
 
 
 class Discriminator(nn.Module):
-    def __init__(self, dim: int, name: str = 'Discriminator'):
-        super(Discriminator, self).__init__(name)
+    def __init__(self, dim: int):
+        super(Discriminator, self).__init__()
 
-        self.main = nn.Sequential([
+        self.main = nn.Sequential(*[
             DownBlock(3, dim // 2, 4),
             DownBlock(dim // 2, dim // 2, 3),
             DownBlock(dim // 2, dim * 1, 4),
@@ -21,7 +21,7 @@ class Discriminator(nn.Module):
             Flatten()
         ])
 
-        self.last = nn.Linear(256 * 8 * 8 * 8, 1, bias=False)
+        self.last = nn.Linear(256 * 8 * 8, 1, bias=False)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, tensor: torch.Tensor) -> torch.Tensor:
@@ -32,6 +32,6 @@ class Discriminator(nn.Module):
         Returns:
             torch.Tensor: [description] 2D(BU) sigmoid output tensor
         """
-        tensor = self.layers(tensor)
+        tensor = self.main(tensor)
         tensor = self.last(tensor)
         return self.sigmoid(tensor)
