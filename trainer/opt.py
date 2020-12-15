@@ -34,6 +34,12 @@ class TrainerBase(metaclass=ABCMeta):
             hp['logdir'], model_name, start_time)
         self.tb = tensorboard.SummaryWriter(logdir)
         os.makedirs(self.tb.log_dir, exist_ok=True)
+        os.makedirs(os.path.join(logdir, 'image'),
+                    exist_ok=True)
+        os.makedirs(os.path.join(logdir, 'ckpt'),
+                    exist_ok=True)
+        os.makedirs(os.path.join(logdir, 'torch_script'),
+                    exist_ok=True)
 
     @abstractmethod
     def train(self):

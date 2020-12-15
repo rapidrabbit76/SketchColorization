@@ -1,12 +1,30 @@
 {
   image_path: , 
   line_path: , 
-  pin_memory: False,
+  pin_memory: True,
   device: cuda:0,
   seed: 2331,
   logdir: ./tensorboard,
 
+ autoencoder: {
+    ckpt: ,
 
+    gf_dim: 64,
+    ch_dim: 3,
+
+    epoch: 12,
+    batch_size: 32,
+    
+    lr: 0.0001,
+    beta1: 0.5,
+    beta2: 0.9,
+
+    lr_milestones: 8,
+
+    log_interval: 10,
+    sampling_interval: 1000,
+    validation_interval: 1000,
+  },
   draft: {
     ckpt: ,
 
@@ -55,23 +73,5 @@
     validation_interval: 1000,
   },
 
-  autoencoder: {
-    ckpt: ,
-
-    gf_dim: 64,
-    ch_dim: 3,
-
-    epoch: 18,
-    batch_size: 64,
-    
-    lr: 0.0001,
-    beta1: 0.5,
-    beta2: 0.9,
-
-    lr_milestones: 8,
-
-    log_interval: 10,
-    sampling_interval: 100,
-    validation_interval: 1000,
-  },
+ 
 }
