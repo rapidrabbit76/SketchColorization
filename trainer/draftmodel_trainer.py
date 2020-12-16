@@ -122,11 +122,11 @@ class DraftModelTrainer(opt.TrainerBase):
         #   Discriminator  #
         ####################
         fake_image = self.__generator(line, hint)  # G(l,h)
-        fake_dis = self.__discriminator(fake_image.detach())
-        real_dis = self.__discriminator(target)
+        fake_dis = self.__discriminator(fake_image.detach())  # D(G(l,h))
+        real_dis = self.__discriminator(target)  # D(c)
 
         fake_loss = self.__gan_loss(fake_dis, False)
-        real_loss = self.__gan_loss(real_dis, False)
+        real_loss = self.__gan_loss(real_dis, True)
         discriminator_loss = fake_loss + real_loss
 
         self.__discriminator.zero_grad()
@@ -162,9 +162,18 @@ class DraftModelTrainer(opt.TrainerBase):
         if self.itr % self.hp['draft']['log_interval'] == 0:
             self.tb.add_scalar('TRAINING/Discriminator.loss',
                                discriminator_loss.item(), self.itr)
+
+
+<< << << < HEAD
             self.tb.add_scalars('TRAINING/Discriminator.output',
                                 {'real': real_loss.item(),
                                  'fake': fake_loss.item()}, self.itr)
+== == == =
+            self.tb.add_scalar('TRAINING/Discriminator.loss.fake',
+                               fake_loss.item(), self.itr)
+            self.tb.add_scalar('TRAINING/Discriminator.loss.real',
+                               real_loss.item(), self.itr)
+>>>>>> > feature/trainer
             self.tb.add_scalar('TRAINING/Generator.loss',
                                generator_loss.item(), self.itr)
             self.tb.add_scalar('TRAINING/Generator.loss.adv',
