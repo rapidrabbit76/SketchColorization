@@ -122,8 +122,8 @@ class DraftModelTrainer(opt.TrainerBase):
         #   Discriminator  #
         ####################
         fake_image = self.__generator(line, hint)  # G(l,h)
-        fake_dis = self.__discriminator(fake_image.detach())
-        real_dis = self.__discriminator(target)
+        fake_dis = self.__discriminator(fake_image.detach())  # D(G(l,h))
+        real_dis = self.__discriminator(target)  # D(c)
 
         fake_loss = self.__gan_loss(fake_dis, False)
         real_loss = self.__gan_loss(real_dis, True)
