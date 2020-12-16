@@ -1,8 +1,10 @@
 # IDE
 .vscode/
 
+# ETC
 __pycache__/
 tensorboard/
+*.zip
 
 # TEST
 test/
