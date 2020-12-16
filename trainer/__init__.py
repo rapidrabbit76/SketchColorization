@@ -1,1 +1,2 @@
 from .autoencoder_trainer import AutoEncoderTrainer
+from .draftmodel_trainer import DraftModelTrainer

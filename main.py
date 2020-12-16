@@ -1,6 +1,6 @@
 import argparse
 import yaml
-from trainer import AutoEncoderTrainer
+from trainer import AutoEncoderTrainer, DraftModelTrainer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Select Model')
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     trainer = None
 
     if args.mode == 'draft':
-        pass
+        trainer = DraftModelTrainer(hp)
     elif args.mode == 'colorization':
         pass
     elif args.mode == 'autoencoder':
