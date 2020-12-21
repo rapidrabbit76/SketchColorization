@@ -50,8 +50,8 @@ class Generator(nn.Module):
 
         Args:
             line (torch.Tensor): 4D(BCHW) greyscale image tensor
-            hint (torch.Tensor): 4D(BCHW) RGBA image tensor 
-            in image tensor RGB scale is -1 to 1 and Alpha scale is 0 to 1 
+            hint (torch.Tensor): 4D(BCHW) RGBA image tensor
+            in image tensor RGB scale is -1 to 1 and Alpha scale is 0 to 1
             if colorization model hint is draft tensor.
             draft tensor color space is RGB and scale is -1 to 1.
 
@@ -84,3 +84,32 @@ class Generator(nn.Module):
             layer.apply(kaiming_normal)
         for layer in self.__than_layers:
             layer.apply(xavier_normal)
+
+
+class SketchColorizationModel(nn.Module):
+
+    def __init__(self, dim=64):
+        super(SketchColorizationModel, self).__init__()
+        self.draft_model = Generator(5, 64)
+        self.colorization_model = Generator(4, 64)
+        self.resize = nn.Upsample(scale_factor=2, mode='nearest')
+
+    def forward(self,
+                line: torch.Tensor,
+                line_draft: torch.Tensor,
+                hint: torch.Tensor) -> torch.Tensor:
+        """ Feed forward method 
+
+        Args:
+            line (torch.Tensor): 4D(BCHW) greyscale image tensor
+            line_draft (torch.Tensor): 4D(BCHW) greyscale image tensor
+            hint (torch.Tensor): 4D(BCHW) RGBA image tensor
+            in image tensor RGB scale is -1 to 1 and Alpha scale is 0 to 1
+
+        Returns:
+            torch.Tensor: colored image tensor (RGB Color space) """
+
+        draft = self.draft_model(line_draft, hint)
+        draft = self.resize(draft)
+        colored = self.colorization_model(line, draft)
+        return colored

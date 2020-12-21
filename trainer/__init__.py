@@ -1,2 +1,3 @@
 from .autoencoder_trainer import AutoEncoderTrainer
 from .draftmodel_trainer import DraftModelTrainer
+from.colorization_trainer import ColorizationModelTrainer
