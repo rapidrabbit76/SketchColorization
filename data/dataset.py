@@ -94,10 +94,7 @@ class DraftModelDataset(Dataset, DatasetBase):
                       (0.5, 0.5, 0.5))
         ])
 
-        compose_processing = [
-            Resize(size),
-            ToTensor()
-        ]
+        compose_processing = [Resize(size), ToTensor()]
 
         if training:
             compose_processing.append(Lambda(self._jitter))
@@ -161,9 +158,10 @@ class DraftModelDataset(Dataset, DatasetBase):
         return target, line
 
 
-class ColorizationModelDataset(Dataset, DatasetBase):
+class ColorizationModelDataset(DraftModelDataset):
     def __init__(self, image_paths: list, training: bool):
-        self.image_paths = image_paths
+        super(ColorizationModelDataset, self).__init__(
+            image_paths, training)
 
         self._hint_compos = Compose([
             Resize(128),
@@ -177,28 +175,34 @@ class ColorizationModelDataset(Dataset, DatasetBase):
             Normalize((0.5, 0.5, 0.5),
                       (0.5, 0.5, 0.5))
         ])
-        self._line_compose = Compose([
-            ToTensor(),
-            Lambda(self._jitter),
-            Normalize([0.5], [0.5]),
-        ])
 
         self._line_draft_compose = Compose([
             Resize(128),
             ToTensor(),
-            Lambda(self._jitter),
-            Normalize([0.5], [0.5]),
+            Normalize([0.5], [0.5])
         ])
+
+        self._line_compose = Compose([
+            ToTensor(),
+            Normalize([0.5], [0.5])
+        ])
+
+    def __len__(self):
+        return len(self._image_paths)
 
     def __getitem__(self, item) -> (torch.Tensor, torch.Tensor,
                                     torch.Tensor, torch.Tensor):
         paths = self._image_paths[item]
         target_image = Image.open(paths[0]).convert('RGB')
 
-        if random.random() > 0.5:
-            line_image = dilate_abs_line(target_image)
+        if random.random() > 0.0001:
+            if random.random() > 0.5:
+                line_image = dilate_abs_line(target_image)
+            else:
+                line_image = Image.open(paths[1]).convert('L')
         else:
-            line_image = Image.open(paths[1]).convert('L')
+            # Data argumentation color image to greyscale image
+            line_image = target_image.convert('L')
 
         target_image, line_image = self._random_crop(target_image,
                                                      line_image)
@@ -230,6 +234,14 @@ class ColorizationModelDataset(Dataset, DatasetBase):
         _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
 
         return to_tensor(mask)
+
+    def _argumentation(self,
+                       target: Image,
+                       line: Image) -> (Image, Image):
+        """ Data Argumentataion """
+        target, line = random_flip(target, line)
+        target = self._color_jitter(target)
+        return target, line
 
 
 class AutoEncoderDataset(Dataset, DatasetBase):

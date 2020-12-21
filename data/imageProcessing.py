@@ -34,8 +34,8 @@ class DraftArgumentation:
                 image = self.norm(image)
                 image = torch.unsqueeze(image, 0)
                 new_images.append(image)
-            images = torch.cat(new_images, 0).to(self.device)
-        return images
+            images = torch.cat(new_images, 0)
+        return images.to(self.device)
 
 
 class RandomSpray:

@@ -58,18 +58,19 @@ def create_data_loader(hyperparameters: dict,
     # Create Dataset
     train_ds = Dataset(train_image_paths, training=True)
     test_ds = Dataset(test_image_paths, training=False)
+    cpu_count = os.cpu_count()
 
     # Create DataLoader
     train_dl = DataLoader(train_ds,
                           batch_size=batch_size,
                           shuffle=True,
-                          num_workers=min(batch_size, 12),
+                          num_workers=cpu_count,
                           pin_memory=hyperparameters['pin_memory'])
 
     test_dl = DataLoader(test_ds,
                          batch_size=8,
                          shuffle=True,
-                         num_workers=min(batch_size, 12),
+                         num_workers=cpu_count,
                          pin_memory=hyperparameters['pin_memory'])
 
     return train_dl, test_dl
