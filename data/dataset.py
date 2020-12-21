@@ -224,7 +224,7 @@ class ColorizationModelDataset(DraftModelDataset):
     @ staticmethod
     def _create_mask() -> torch.Tensor:
         area = 128 * 128
-        hint_count = 128
+        hint_count = random.randint(28, 128)
 
         zero = np.zeros(shape=[area - hint_count], dtype=np.uint8)
         one = np.ones(shape=[hint_count], dtype=np.uint8)

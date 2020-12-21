@@ -69,7 +69,7 @@ def create_data_loader(hyperparameters: dict,
 
     test_dl = DataLoader(test_ds,
                          batch_size=8,
-                         shuffle=True,
+                         shuffle=False,
                          num_workers=cpu_count,
                          pin_memory=hyperparameters['pin_memory'])
 
