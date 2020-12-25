@@ -4,7 +4,12 @@
 # ETC
 __pycache__/
 tensorboard/
+
+# models
 *.zip
+*.pt
+*.pth
+*.onnx
 
 # TEST
 test/

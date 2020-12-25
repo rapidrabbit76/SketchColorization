@@ -92,7 +92,7 @@ class SketchColorizationModel(nn.Module):
         super(SketchColorizationModel, self).__init__()
         self.draft_model = Generator(5, 64)
         self.colorization_model = Generator(4, 64)
-        self.resize = nn.Upsample(scale_factor=2, mode='nearest')
+        self.resize = nn.Upsample(scale_factor=4, mode='nearest')
 
     def forward(self,
                 line: torch.Tensor,
