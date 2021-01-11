@@ -285,7 +285,7 @@ border-color: black;</string>
                 <enum>QFrame::NoFrame</enum>
                </property>
                <property name="text">
-                <string>penSize : </string>
+                <string>size</string>
                </property>
               </widget>
              </item>
@@ -413,14 +413,7 @@ border-color: black;</string>
     <addaction name="fileOpen"/>
     <addaction name="fileSave"/>
    </widget>
-   <widget class="QMenu" name="menusettings">
-    <property name="title">
-     <string>Setting</string>
-    </property>
-    <addaction name="actionconfig"/>
-   </widget>
    <addaction name="fileMenu"/>
-   <addaction name="menusettings"/>
   </widget>
   <action name="fileOpenBtn">
    <property name="text">

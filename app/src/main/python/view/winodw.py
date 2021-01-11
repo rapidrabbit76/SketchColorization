@@ -188,13 +188,13 @@ class Window(QtWidgets.QMainWindow):
 
     def _imwrite(self, image: Image):
         try:
+            fileters = self.tr(
+                "Image Files (*.png *.jpg *.bmp *.jpeg *.JPG *.PNG *.JPEG)")
             options = QtWidgets.QFileDialog.Options()
             options |= QtWidgets.QFileDialog.DontUseNativeDialog
+
             file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
-                self,
-                'Save File',
-                None,
-                "Image Files (*.png *.jpg *.bmp *.jpeg *.JPG *.PNG *.JPEG)",
+                self, 'Save File', None, fileters,
                 options=options)
 
             if file_path == "":
