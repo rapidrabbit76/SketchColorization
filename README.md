@@ -51,7 +51,7 @@
 
 # Run APP with source code
 
-- download pretrained onnx model (SketchColorizationModel.onnx)
+- download pretrained onnx model [SketchColorizationModel.onnx](https://github.com/rapidrabbit76/SketchColorization/releases)
 - Copy model to "app/src/main/resources/base/SketchColorizationModel.onnx"
 - cd app 
 - fbs run 
