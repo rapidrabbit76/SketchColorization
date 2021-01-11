@@ -1,12 +1,23 @@
 # SketchColorization
 ![01](./src/01.png)
 # Model Structure 
-![02](./src/02.png)
+
+![02](./src/02.jpg)
 # Samples
-![03](./src/03.png)
-# Not Anime line-arts
-![04](./src/04.png)
+
+![03](./src/03.jpg)
+
+![04](./src/04.jpg)
+# GUI
+
+---
+
+![5](./src/06.png)
+
+
+
 # Requirements
+
 - torch==1.7.1
 - torchvision==0.82
 - numpy==1.19.1
@@ -16,6 +27,11 @@
 - scipy==1.5.2
 - Pillow==7.2.0
 - scikit-learn==0.23.2
+- fbs==0.9.0
+- onnx==1.7.0
+- onnxruntime==1.5.1
+- PyQt5==5.15.1
+- QDarkStyle==2.8.1
 
 # Dataset 
 - We crawled over 700,000 illustrations from [shuushuu-image-board](https://e-shuushuu.net/) and used them for learning.
@@ -32,3 +48,10 @@
 - Start learning after adjusting hyperparameters for each learning step
 
     - run 'python main.py  -M {autoencoder | draft | colorization}'
+
+# Run APP with source code
+
+- download pretrained onnx model (SketchColorizationModel.onnx)
+- Copy model to "app/src/main/resources/base/SketchColorizationModel.onnx"
+- cd app 
+- fbs run 
