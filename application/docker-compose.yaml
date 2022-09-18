@@ -1,0 +1,20 @@
+version: "3.7"
+
+services:
+  api:
+    image: ys2lee/sketchcolorization-api:${TAG:-latest}
+    build:
+      context: ./API
+      dockerfile: docker/Dockerfile
+
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    environment:
+      TZ: Asia/Seoul
+      MODEL_PATH: model_store/SketchColorizationModel.onnx
+      MB_BATCH_SIZE: 1
+      MB_MAX_LATENCY: 0.01
+      MB_TIMEOUT: 120
